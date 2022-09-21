@@ -56,6 +56,5 @@ List<String>? getOptionsForRoute(String route) {
   if (!routeOptions.containsKey(route)) {
     return null;
   }
-
   return routeOptions[route];
 }

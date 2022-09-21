@@ -1,16 +1,37 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'isar/ffd.dart';
+
+// import 'isar/ffd.dart';
+import 'isar/ffd.dart';
 import 'nav_helper.dart';
+import 'screens/addFfddata_screen.dart';
 import 'screens/paginated_data_table2.dart';
+
 
 int offset = 10;
 int limit = 10;
 
-void main() {
-  runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final isar;
+  if (!kIsWeb) {
+    final dir =
+        await getApplicationSupportDirectory(); //get directory for desktop version. c
+    isar = await Isar.open([FfdSchema],
+        directory: dir.path); //including path for desktop version
+  } else {
+    isar = await Isar.open([FfdSchema]); //enable this statement for web version
+
+  }
+  runApp(MyApp(isar: isar));
 }
 
-const String initialRoute = '/paginated2';
-
+// const String initialRoute = '/paginated2';
+const String initialRoute = '/add';
 Scaffold _getScaffold(BuildContext context, Widget body,
     [List<String>? options]) {
   var defaultOption = getCurrentRouteOption(context);
@@ -34,7 +55,7 @@ Scaffold _getScaffold(BuildContext context, Widget body,
                   .textTheme
                   .subtitle1!
                   .copyWith(color: Colors.white),
-              value: _getCurrentRoute(context),
+              //value: _getCurrentRoute(context),
               onChanged: (v) {
                 Navigator.of(context).pushNamed(v!);
               },
@@ -60,8 +81,8 @@ Scaffold _getScaffold(BuildContext context, Widget body,
                                 .copyWith(color: Colors.black),
                             value: defaultOption,
                             onChanged: (v) {
-                              var r = _getCurrentRoute(context);
-                              Navigator.of(context).pushNamed(r, arguments: v);
+                              // var r = _getCurrentRoute(context);
+                              // Navigator.of(context).pushNamed(r, arguments: v);
                             },
                             items: options
                                 .map<DropdownMenuItem<String>>(
@@ -77,15 +98,12 @@ Scaffold _getScaffold(BuildContext context, Widget body,
   );
 }
 
-String _getCurrentRoute(BuildContext context) {
-  return ModalRoute.of(context) != null &&
-          ModalRoute.of(context)!.settings.name != null
-      ? ModalRoute.of(context)!.settings.name!
-      : initialRoute;
-}
-
 // ignore: use_key_in_widget_constructors
 class MyApp extends StatelessWidget {
+  final Isar isar;
+
+  const MyApp({Key? key, required this.isar}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -96,8 +114,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: initialRoute,
       routes: {
-        '/paginated2': (context) => _getScaffold(context,
-            const PaginatedDataTable2Demo(), getOptionsForRoute('/paginated2')),
+        // '/paginated2': (context) => _getScaffold(context,
+        //     const PaginatedDataTable2Demo(), getOptionsForRoute('/paginated2')),
+        '/add': (context) =>
+             AddFfdRecords(isar:isar),
       },
     );
   }
